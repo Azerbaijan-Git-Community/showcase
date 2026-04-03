@@ -7,7 +7,7 @@ type ProjectYaml = {
   repo?: string;
   submittedBy?: string;
   banner?: string;
-  npm?: string;
+  links?: unknown;
   website?: string;
   addedAt?: string;
   updatedAt?: string;
@@ -21,23 +21,24 @@ type ValidationResult = {
 };
 
 const REPO_RE = /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/;
-const NPM_RE = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
 const NEW_FILE_ALLOWED_FIELDS = new Set([
   "repo",
   "submittedBy",
   "banner",
-  "npm",
+  "links",
   "website",
 ]);
 const MODIFIED_FILE_ALLOWED_FIELDS = new Set([
   "repo",
   "submittedBy",
   "banner",
-  "npm",
+  "links",
   "website",
   "addedAt",
   "updatedAt",
 ]);
+
+const MAX_LINKS = 5;
 
 // Parse --new, --modified, --deleted and --invalid arguments
 function parseArgs(args: string[]): {
@@ -117,6 +118,34 @@ function getBaseBranchContent(filePath: string): ProjectYaml | null {
   } catch {
     return null;
   }
+}
+
+function validateLinks(links: unknown, errors: string[]) {
+  if (!Array.isArray(links)) {
+    errors.push("`links` must be an array of HTTPS URLs");
+    return;
+  }
+  if (links.length > MAX_LINKS) {
+    errors.push(`\`links\` may have at most ${MAX_LINKS} items, got ${links.length}`);
+  }
+  const seen = new Set<string>();
+  links.forEach((item: unknown, i: number) => {
+    const prefix = `\`links[${i}]\``;
+    if (typeof item !== "string") {
+      errors.push(`${prefix} must be a string URL`);
+      return;
+    }
+    if (seen.has(item)) {
+      errors.push(`${prefix} duplicate URL \`${item}\``);
+    }
+    seen.add(item);
+    try {
+      const url = new URL(item);
+      if (url.protocol !== "https:") errors.push(`${prefix} must use HTTPS`);
+    } catch {
+      errors.push(`${prefix} is not a valid URL: \`${item}\``);
+    }
+  });
 }
 
 let hasErrors = false;
@@ -246,13 +275,9 @@ for (const filePath of filesToValidate) {
     }
   }
 
-  // npm package name
-  if (data.npm != null) {
-    if (typeof data.npm !== "string" || !NPM_RE.test(data.npm)) {
-      errors.push(
-        `\`npm\` must be a valid npm package name, got: \`${data.npm}\``,
-      );
-    }
+  // links validation
+  if (data.links != null) {
+    validateLinks(data.links, errors);
   }
 
   // Duplicate check (against other files, not self)
