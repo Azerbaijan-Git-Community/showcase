@@ -1,3 +1,5 @@
+<!-- PR title format: "add: owner/repo" | "update: owner/repo" | "remove: owner/repo" -->
+
 ## Checklist
 
 - [ ] My repository is public on GitHub
