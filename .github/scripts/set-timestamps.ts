@@ -5,7 +5,7 @@ type ProjectYaml = {
   repo?: string;
   submittedBy?: string;
   banner?: string;
-  npm?: string;
+  links?: string[];
   website?: string;
   addedAt?: string;
   updatedAt?: string;
@@ -19,7 +19,7 @@ const FIELD_ORDER = [
   "repo",
   "submittedBy",
   "banner",
-  "npm",
+  "links",
   "website",
   "addedAt",
   "updatedAt",
