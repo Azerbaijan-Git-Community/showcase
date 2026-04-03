@@ -19,24 +19,25 @@ A CI check will validate your file automatically. Fix any reported errors before
 ## Schema
 
 ```yaml
-repo: owner/repo                  # Required — GitHub owner/repo slug
+repo: owner/repo # Required — GitHub owner/repo slug
 submittedBy: your-github-username # Required — your GitHub username
-banner: https://...               # Optional — banner image URL (HTTPS)
-links:                            # Optional — package registry / marketplace URLs
+banner: https://... # Optional — banner image URL (HTTPS)
+links:
+  # Optional — package registry / marketplace URLs
   - https://www.npmjs.com/package/my-package
   - https://pypi.org/project/my-package
-website: https://example.com      # Optional — project website (HTTPS)
+website: https://example.com # Optional — project website (HTTPS)
 ```
 
 ### Field Details
 
-| Field | Required | Description |
-|---|---|---|
-| `repo` | Yes | GitHub repository in `owner/repo` format |
-| `submittedBy` | Yes | Your GitHub username |
-| `banner` | No | Banner image URL (HTTPS only). If it fails to load, the GitHub OG image is shown as fallback. Recommended size: 1280×640px |
-| `links` | No | List of HTTPS URLs to package registries or marketplaces (max 5) |
-| `website` | No | Project homepage. Must use HTTPS |
+| Field         | Required | Description                                                                                                                |
+| ------------- | -------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `repo`        | Yes      | GitHub repository in `owner/repo` format                                                                                   |
+| `submittedBy` | Yes      | Your GitHub username                                                                                                       |
+| `banner`      | No       | Banner image URL (HTTPS only). If it fails to load, the GitHub OG image is shown as fallback. Recommended size: 1280×640px |
+| `links`       | No       | List of HTTPS URLs to package registries or marketplaces (max 5)                                                           |
+| `website`     | No       | Project homepage. Must use HTTPS                                                                                           |
 
 ### `links`
 
@@ -44,15 +45,15 @@ Each entry is a plain HTTPS URL — no labels or extra fields needed. The websit
 
 **Recognized domains and their icons:**
 
-| Domain | Icon |
-|---|---|
-| `npmjs.com` | npm |
-| `pypi.org` | Python |
+| Domain                         | Icon    |
+| ------------------------------ | ------- |
+| `npmjs.com`                    | npm     |
+| `pypi.org`                     | Python  |
 | `marketplace.visualstudio.com` | VS Code |
-| `crates.io` | Rust |
-| `rubygems.org` | Ruby |
-| `nuget.org` | .NET |
-| `hub.docker.com` | Docker |
+| `crates.io`                    | Rust    |
+| `rubygems.org`                 | Ruby    |
+| `nuget.org`                    | .NET    |
+| `hub.docker.com`               | Docker  |
 
 Any other domain shows a generic link icon — you don't need to wait for support to be added.
 
