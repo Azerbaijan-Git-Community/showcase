@@ -27,23 +27,30 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Get changed YAML files
+      - name: Get changed files
         id: changed
         run: |
           BASE="origin/${{ github.base_ref }}"
           NEW=$(git diff --name-only --diff-filter=A "$BASE"...HEAD -- 'projects/*.yaml' | tr '\n' ' ')
           MODIFIED=$(git diff --name-only --diff-filter=CMRT "$BASE"...HEAD -- 'projects/*.yaml' | tr '\n' ' ')
           DELETED=$(git diff --name-only --diff-filter=D "$BASE"...HEAD -- 'projects/*.yaml' | tr '\n' ' ')
+          INVALID=$(git diff --name-only --diff-filter=ACMRT "$BASE"...HEAD -- 'projects/*' | grep -v '\.yaml$' | tr '\n' ' ' || true)
           echo "new=$NEW" >> "$GITHUB_OUTPUT"
           echo "modified=$MODIFIED" >> "$GITHUB_OUTPUT"
           echo "deleted=$DELETED" >> "$GITHUB_OUTPUT"
+          echo "invalid=$INVALID" >> "$GITHUB_OUTPUT"
 
       - name: Validate
-        if: steps.changed.outputs.new != '' || steps.changed.outputs.modified != '' || steps.changed.outputs.deleted != ''
+        if: >
+          steps.changed.outputs.new != '' ||
+          steps.changed.outputs.modified != '' ||
+          steps.changed.outputs.deleted != '' ||
+          steps.changed.outputs.invalid != ''
         run: >
           node .github/scripts/validate.ts
           --new ${{ steps.changed.outputs.new }}
           --modified ${{ steps.changed.outputs.modified }}
           --deleted ${{ steps.changed.outputs.deleted }}
+          --invalid ${{ steps.changed.outputs.invalid }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

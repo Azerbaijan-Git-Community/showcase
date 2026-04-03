@@ -39,16 +39,18 @@ const MODIFIED_FILE_ALLOWED_FIELDS = new Set([
   "updatedAt",
 ]);
 
-// Parse --new, --modified, and --deleted arguments
+// Parse --new, --modified, --deleted and --invalid arguments
 function parseArgs(args: string[]): {
   newFiles: string[];
   modifiedFiles: string[];
   deletedFiles: string[];
+  invalidFiles: string[];
 } {
   const newFiles: string[] = [];
   const modifiedFiles: string[] = [];
   const deletedFiles: string[] = [];
-  let mode: "new" | "modified" | "deleted" | null = null;
+  const invalidFiles: string[] = [];
+  let mode: "new" | "modified" | "deleted" | "invalid" | null = null;
 
   for (const arg of args) {
     if (arg === "--new") {
@@ -57,25 +59,29 @@ function parseArgs(args: string[]): {
       mode = "modified";
     } else if (arg === "--deleted") {
       mode = "deleted";
-    } else if (arg.endsWith(".yaml")) {
+    } else if (arg === "--invalid") {
+      mode = "invalid";
+    } else if (arg.startsWith("projects/")) {
       if (mode === "modified") {
         modifiedFiles.push(arg);
       } else if (mode === "deleted") {
         deletedFiles.push(arg);
+      } else if (mode === "invalid") {
+        invalidFiles.push(arg);
       } else {
         newFiles.push(arg);
       }
     }
   }
 
-  return { newFiles, modifiedFiles, deletedFiles };
+  return { newFiles, modifiedFiles, deletedFiles, invalidFiles };
 }
 
-const { newFiles, modifiedFiles, deletedFiles } = parseArgs(
+const { newFiles, modifiedFiles, deletedFiles, invalidFiles } = parseArgs(
   process.argv.slice(2),
 );
 const filesToValidate = [...newFiles, ...modifiedFiles];
-const allChangedFiles = [...filesToValidate, ...deletedFiles];
+const allChangedFiles = [...filesToValidate, ...deletedFiles, ...invalidFiles];
 
 if (allChangedFiles.length === 0) {
   console.log("No YAML files to validate.");
@@ -115,6 +121,18 @@ function getBaseBranchContent(filePath: string): ProjectYaml | null {
 
 let hasErrors = false;
 const results: ValidationResult[] = [];
+
+// Reject non-YAML files in projects/
+for (const filePath of invalidFiles) {
+  results.push({
+    file: filePath,
+    status: "deleted",
+    errors: [
+      `Only \`.yaml\` files are allowed in the \`projects/\` directory, got \`${filePath}\``,
+    ],
+  });
+  hasErrors = true;
+}
 
 // Validate deleted files — just log them, no errors
 for (const filePath of deletedFiles) {
