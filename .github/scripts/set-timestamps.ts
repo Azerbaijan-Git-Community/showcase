@@ -27,7 +27,7 @@ const FIELD_ORDER = [
 
 for (const filePath of changedFiles) {
   const content = readFileSync(filePath, "utf8");
-  const data = yaml.load(content) as ProjectYaml | null;
+  const data = yaml.load(content, { schema: yaml.JSON_SCHEMA }) as ProjectYaml | null;
 
   if (!data || typeof data !== "object") {
     console.log(`Skipping ${filePath} — not a valid YAML object`);

@@ -13,6 +13,6 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": [".github/scripts/**/*.ts"],
+  "include": [".github/scripts/**/*.ts", "scripts/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }
