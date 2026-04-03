@@ -32,7 +32,7 @@ website: "https://example.com"     # Optional — project website (HTTPS only)
 |---|---|---|
 | `repo` | Yes | GitHub repository in `owner/repo` format |
 | `submittedBy` | Yes | Your GitHub username |
-| `banner` | No | Banner image URL. Must be hosted on `https://raw.githubusercontent.com/`. Recommended size: 1280x640px |
+| `banner` | No | Banner image URL (HTTPS only). Can be hosted anywhere. If the image fails to load, the GitHub OG image is used as fallback. Recommended size: 1280x640px |
 | `npm` | No | npm package name (e.g., `my-package` or `@scope/my-package`) |
 | `website` | No | Project website. Must use HTTPS |
 
