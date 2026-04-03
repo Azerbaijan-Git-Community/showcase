@@ -211,14 +211,15 @@ for (const filePath of filesToValidate) {
     }
   }
 
-  // banner must be raw.githubusercontent.com
+  // banner must be a valid HTTPS URL
   if (data.banner != null) {
-    if (
-      typeof data.banner !== "string" ||
-      !data.banner.startsWith("https://raw.githubusercontent.com/")
-    ) {
+    try {
+      const url = new URL(data.banner);
+      if (url.protocol !== "https:")
+        errors.push("`banner` must use HTTPS");
+    } catch {
       errors.push(
-        "`banner` must be a `https://raw.githubusercontent.com/` URL",
+        `\`banner\` is not a valid URL: \`${data.banner}\``,
       );
     }
   }
