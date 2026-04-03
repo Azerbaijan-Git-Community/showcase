@@ -40,6 +40,10 @@ jobs:
           echo "deleted=$DELETED" >> "$GITHUB_OUTPUT"
           echo "invalid=$INVALID" >> "$GITHUB_OUTPUT"
 
+      - name: Prettier — format check
+        if: steps.changed.outputs.new != '' || steps.changed.outputs.modified != ''
+        run: pnpm prettier --check ${{ steps.changed.outputs.new }} ${{ steps.changed.outputs.modified }}
+
       - name: Validate
         if: >
           steps.changed.outputs.new != '' ||

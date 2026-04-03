@@ -61,7 +61,7 @@ function parseArgs(args: string[]): {
       mode = "deleted";
     } else if (arg === "--invalid") {
       mode = "invalid";
-    } else if (arg.startsWith("projects/")) {
+    } else if (arg.startsWith("projects/") || arg.startsWith("projects\\")) {
       if (mode === "modified") {
         modifiedFiles.push(arg);
       } else if (mode === "deleted") {
@@ -98,7 +98,7 @@ const existingRepos = new Map<string, string>();
 for (const file of allProjectFiles) {
   try {
     const content = readFileSync(join("projects", file), "utf8");
-    const data = yaml.load(content) as ProjectYaml | null;
+    const data = yaml.load(content, { schema: yaml.JSON_SCHEMA }) as ProjectYaml | null;
     if (data?.repo) existingRepos.set(data.repo, file);
   } catch {
     // Skip unparseable files
@@ -109,11 +109,11 @@ for (const file of allProjectFiles) {
 function getBaseBranchContent(filePath: string): ProjectYaml | null {
   try {
     const baseBranch = process.env.GITHUB_BASE_REF || "main";
-    const content = execSync(
-      `git show origin/${baseBranch}:${filePath}`,
-      { encoding: "utf8", stdio: ["pipe", "pipe", "pipe"] },
-    );
-    return yaml.load(content) as ProjectYaml | null;
+    const content = execSync(`git show origin/${baseBranch}:${filePath}`, {
+      encoding: "utf8",
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    return yaml.load(content, { schema: yaml.JSON_SCHEMA }) as ProjectYaml | null;
   } catch {
     return null;
   }
@@ -166,7 +166,7 @@ for (const filePath of filesToValidate) {
   let data: ProjectYaml;
   try {
     const content = readFileSync(filePath, "utf8");
-    const parsed = yaml.load(content);
+    const parsed = yaml.load(content, { schema: yaml.JSON_SCHEMA });
     if (!parsed || typeof parsed !== "object") {
       errors.push("File must contain a YAML object");
       results.push({ file: filename, status, errors });
@@ -208,14 +208,11 @@ for (const filePath of filesToValidate) {
 
   // Required fields
   if (!data.repo) errors.push("Missing required field: `repo`");
-  if (!data.submittedBy)
-    errors.push("Missing required field: `submittedBy`");
+  if (!data.submittedBy) errors.push("Missing required field: `submittedBy`");
 
   // repo format
   if (data.repo && !REPO_RE.test(data.repo)) {
-    errors.push(
-      `\`repo\` must match owner/repo format, got: \`${data.repo}\``,
-    );
+    errors.push(`\`repo\` must match owner/repo format, got: \`${data.repo}\``);
   }
 
   // Filename convention: {owner}-{repo}.yaml
@@ -233,12 +230,9 @@ for (const filePath of filesToValidate) {
   if (data.banner != null) {
     try {
       const url = new URL(data.banner);
-      if (url.protocol !== "https:")
-        errors.push("`banner` must use HTTPS");
+      if (url.protocol !== "https:") errors.push("`banner` must use HTTPS");
     } catch {
-      errors.push(
-        `\`banner\` is not a valid URL: \`${data.banner}\``,
-      );
+      errors.push(`\`banner\` is not a valid URL: \`${data.banner}\``);
     }
   }
 
@@ -246,12 +240,9 @@ for (const filePath of filesToValidate) {
   if (data.website != null) {
     try {
       const url = new URL(data.website);
-      if (url.protocol !== "https:")
-        errors.push("`website` must use HTTPS");
+      if (url.protocol !== "https:") errors.push("`website` must use HTTPS");
     } catch {
-      errors.push(
-        `\`website\` is not a valid URL: \`${data.website}\``,
-      );
+      errors.push(`\`website\` is not a valid URL: \`${data.website}\``);
     }
   }
 
@@ -283,9 +274,7 @@ const token = process.env.GITHUB_TOKEN;
 if (token) {
   for (const result of results) {
     if (result.errors.length > 0 || result.status === "deleted") continue;
-    const filePath = filesToValidate.find(
-      (f) => basename(f) === result.file,
-    );
+    const filePath = filesToValidate.find((f) => basename(f) === result.file);
     if (!filePath) continue;
     const data = yaml.load(
       readFileSync(filePath, "utf8"),
@@ -293,15 +282,12 @@ if (token) {
     if (!data?.repo) continue;
 
     try {
-      const res = await fetch(
-        `https://api.github.com/repos/${data.repo}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "User-Agent": "AzGitCommunity-Showcase",
-          },
+      const res = await fetch(`https://api.github.com/repos/${data.repo}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "User-Agent": "AzGitCommunity-Showcase",
         },
-      );
+      });
       if (res.status === 404) {
         result.errors.push(
           `Repository \`${data.repo}\` does not exist or is not public on GitHub`,
@@ -326,7 +312,11 @@ if (token) {
 console.log("");
 for (const { file, status, errors } of results) {
   const tag =
-    status === "deleted" ? "[deleted]" : status === "new" ? "[new]" : "[modified]";
+    status === "deleted"
+      ? "[deleted]"
+      : status === "new"
+        ? "[new]"
+        : "[modified]";
   if (errors.length === 0) {
     console.log(`  ${tag} ${file} — valid`);
   } else {

@@ -1,0 +1,11 @@
+{
+  "plugins": ["prettier-plugin-yaml"],
+  "overrides": [
+    {
+      "files": "projects/*.yaml",
+      "options": {
+        "yamlQuoteValues": true
+      }
+    }
+  ]
+}
