@@ -5,6 +5,7 @@ on:
     workflows: ["Set Timestamps"]
     types: [completed]
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   notify:
