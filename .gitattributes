@@ -12,7 +12,4 @@
 
 
 # Linguist
-*.ts linguist-detectable=true
-*.json linguist-detectable=true
-*.yaml linguist-detectable=true
-pnpm-lock.yaml linguist-generated=true
+*.ts linguist-detectable=true 
