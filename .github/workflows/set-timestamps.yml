@@ -44,7 +44,7 @@ jobs:
 
       - name: Set timestamps
         if: steps.changed.outputs.files != ''
-        run: node .github/scripts/set-timestamps.ts ${{ steps.changed.outputs.files }}
+        run: pnpm exec tsx .github/scripts/set-timestamps.ts ${{ steps.changed.outputs.files }}
 
       - name: Commit timestamps
         if: steps.changed.outputs.files != ''

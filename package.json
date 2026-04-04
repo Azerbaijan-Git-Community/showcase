@@ -5,9 +5,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "checks": "node scripts/checks.ts",
-    "validate": "node .github/scripts/validate.ts",
-    "set-timestamps": "node .github/scripts/set-timestamps.ts",
+    "checks": "tsx scripts/checks.ts",
+    "validate": "tsx .github/scripts/validate.ts",
+    "set-timestamps": "tsx .github/scripts/set-timestamps.ts",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write projects/",
     "format:check": "prettier --check projects/"
   },
@@ -19,6 +20,7 @@
     "js-yaml": "^4.1.1",
     "prettier": "^3.8.1",
     "prettier-plugin-yaml": "^1.1.3",
+    "tsx": "^4.20.6",
     "typescript": "^6.0.2"
   }
 }

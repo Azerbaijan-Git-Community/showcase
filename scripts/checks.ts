@@ -92,7 +92,7 @@ const checks: Check[] = [
     ? [
         {
           name: "YAML — validate changed projects",
-          cmd: `node .github/scripts/validate.ts ${validateArgs}`,
+          cmd: `pnpm exec tsx .github/scripts/validate.ts ${validateArgs}`,
         },
       ]
     : []),

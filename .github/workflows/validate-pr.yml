@@ -51,7 +51,7 @@ jobs:
           steps.changed.outputs.deleted != '' ||
           steps.changed.outputs.invalid != ''
         run: >
-          node .github/scripts/validate.ts
+          pnpm exec tsx .github/scripts/validate.ts
           --new ${{ steps.changed.outputs.new }}
           --modified ${{ steps.changed.outputs.modified }}
           --deleted ${{ steps.changed.outputs.deleted }}
