@@ -19,3 +19,5 @@ After your PR is merged, a bot will inject timestamps and the project will appea
 - On merge, a bot injects `addedAt`/`updatedAt` timestamps automatically
 - A webhook notifies the website, which syncs GitHub metadata (stars, issues, PRs, license, language) into its database
 - The [/showcase](https://azerbaijangithubcommunity.vercel.app/showcase) page renders project cards from this data
+
+<!-- Delete this... -->
