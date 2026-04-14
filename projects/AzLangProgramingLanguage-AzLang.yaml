@@ -1,0 +1,6 @@
+repo: "AzLangProgramingLanguage/AzLang" # Required — GitHub owner/repo slug
+submittedBy: "Prestgg1" # Required — your GitHub username
+banner: "https://i.imgur.com/B6bIHZJ.jpeg" # Optional — banner image URL (HTTPS)
+links:
+  - "https://azlang.pages.dev"
+website: "https://azlang.pages.dev"
