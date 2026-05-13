@@ -1,5 +1,4 @@
 import { readFileSync, readdirSync, existsSync } from "fs";
-import { execSync } from "child_process";
 import { join, basename } from "path";
 import yaml from "js-yaml";
 
@@ -9,8 +8,6 @@ type ProjectYaml = {
   banner?: string;
   links?: unknown;
   website?: string;
-  addedAt?: string;
-  updatedAt?: string;
   [key: string]: unknown;
 };
 
@@ -21,21 +18,12 @@ type ValidationResult = {
 };
 
 const REPO_RE = /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/;
-const NEW_FILE_ALLOWED_FIELDS = new Set([
+const ALLOWED_FIELDS = new Set([
   "repo",
   "submittedBy",
   "banner",
   "links",
   "website",
-]);
-const MODIFIED_FILE_ALLOWED_FIELDS = new Set([
-  "repo",
-  "submittedBy",
-  "banner",
-  "links",
-  "website",
-  "addedAt",
-  "updatedAt",
 ]);
 
 const MAX_LINKS = 5;
@@ -103,20 +91,6 @@ for (const file of allProjectFiles) {
     if (data?.repo) existingRepos.set(data.repo, file);
   } catch {
     // Skip unparseable files
-  }
-}
-
-// Get base branch file content from git for addedAt comparison
-function getBaseBranchContent(filePath: string): ProjectYaml | null {
-  try {
-    const baseBranch = process.env.GITHUB_BASE_REF || "main";
-    const content = execSync(`git show origin/${baseBranch}:${filePath}`, {
-      encoding: "utf8",
-      stdio: ["pipe", "pipe", "pipe"],
-    });
-    return yaml.load(content, { schema: yaml.JSON_SCHEMA }) as ProjectYaml | null;
-  } catch {
-    return null;
   }
 }
 
@@ -188,9 +162,6 @@ for (const filePath of filesToValidate) {
   const filename = basename(filePath);
   const isModified = modifiedSet.has(filePath);
   const status = isModified ? "modified" : "new";
-  const allowedFields = isModified
-    ? MODIFIED_FILE_ALLOWED_FIELDS
-    : NEW_FILE_ALLOWED_FIELDS;
 
   let data: ProjectYaml;
   try {
@@ -212,25 +183,9 @@ for (const filePath of filesToValidate) {
 
   // Check for unknown fields
   for (const key of Object.keys(data)) {
-    if (!allowedFields.has(key)) {
-      if (!isModified && (key === "addedAt" || key === "updatedAt")) {
-        errors.push(
-          `\`${key}\` must not be included in new submissions — it will be set automatically after merge`,
-        );
-      } else {
-        errors.push(
-          `Unknown field \`${key}\` — only allowed: ${[...allowedFields].join(", ")}`,
-        );
-      }
-    }
-  }
-
-  // For modified files, verify addedAt hasn't been changed
-  if (isModified && data.addedAt) {
-    const baseData = getBaseBranchContent(filePath);
-    if (baseData?.addedAt && data.addedAt !== baseData.addedAt) {
+    if (!ALLOWED_FIELDS.has(key)) {
       errors.push(
-        `\`addedAt\` must not be changed — expected \`${baseData.addedAt}\`, got \`${data.addedAt}\``,
+        `Unknown field \`${key}\` — only allowed: ${[...ALLOWED_FIELDS].join(", ")}`,
       );
     }
   }

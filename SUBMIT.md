@@ -41,6 +41,7 @@ website: https://example.com # Optional — project website (HTTPS)
 
 ### `links`
 
+
 Each entry is a plain HTTPS URL — no labels or extra fields needed. The website automatically picks the right icon based on the URL domain.
 
 **Recognized domains and their icons:**
@@ -56,13 +57,6 @@ Each entry is a plain HTTPS URL — no labels or extra fields needed. The websit
 | `hub.docker.com`               | Docker  |
 
 Any other domain shows a generic link icon — you don't need to wait for support to be added.
-
-### Do NOT include these fields
-
-- `addedAt` — automatically set by the bot after merge
-- `updatedAt` — automatically set by the bot after merge
-
-Including these fields will cause the CI check to fail.
 
 ## Examples
 
@@ -102,10 +96,9 @@ links:
 
 ## What Happens After Merge
 
-1. A bot automatically adds `addedAt` and `updatedAt` timestamps to your file
-2. A webhook notifies the website to sync your project's GitHub metadata (stars, issues, PRs, license, language)
-3. Your project card appears on [azerbaijangithubcommunity.vercel.app/showcase](https://azerbaijangithubcommunity.vercel.app/showcase) within minutes
+1. A webhook notifies the website to sync your project's GitHub metadata (stars, issues, PRs, license, language)
+2. Your project card appears on [azerbaijangithubcommunity.vercel.app/showcase](https://azerbaijangithubcommunity.vercel.app/showcase) within minutes
 
 ## Updating Your Project
 
-To update optional fields, open a new PR editing your existing YAML file. The bot will update the `updatedAt` timestamp on merge.
+To update optional fields, open a new PR editing your existing YAML file.

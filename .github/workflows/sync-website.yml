@@ -1,20 +1,19 @@
-name: Notify Website
+name: Sync Website
 
 on:
-  workflow_run:
-    workflows: ["Set Timestamps"]
-    types: [completed]
+  push:
     branches: [main]
+    paths:
+      - projects/*.yaml
   workflow_dispatch:
 
 jobs:
-  notify:
+  sync:
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Trigger showcase sync
         run: |
-          curl -sf -X POST "${{ secrets.SHOWCASE_WEBHOOK_URL }}" \
+          curl -sf -X POST "${{ secrets.WEBSITE_URL }}/api/webhooks/showcase" \
             -H "Authorization: Bearer ${{ secrets.SHOWCASE_WEBHOOK_SECRET }}" \
             -H "Content-Type: application/json" \
             -d '{"source": "showcase-repo"}'
