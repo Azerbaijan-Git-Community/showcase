@@ -18,6 +18,37 @@ type ValidationResult = {
 };
 
 const REPO_RE = /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/;
+
+// Domains that belong in `links`, not `website`
+const REGISTRY_DOMAINS = new Set([
+  "npmjs.com",
+  "pypi.org",
+  "marketplace.visualstudio.com",
+  "open-vsx.org",
+  "crates.io",
+  "rubygems.org",
+  "nuget.org",
+  "hub.docker.com",
+  "pub.dev",
+  "pkg.go.dev",
+  "hex.pm",
+  "packagist.org",
+  "anaconda.org",
+  "mvnrepository.com",
+  "cocoapods.org",
+  "jsr.io",
+  "plugins.jetbrains.com",
+  "chromewebstore.google.com",
+  "addons.mozilla.org",
+  "aur.archlinux.org",
+  "snapcraft.io",
+  "flathub.org",
+  "search.nixos.org",
+  "formulae.brew.sh",
+  "ghcr.io",
+]);
+
+
 const ALLOWED_FIELDS = new Set([
   "repo",
   "submittedBy",
@@ -220,11 +251,23 @@ for (const filePath of filesToValidate) {
     }
   }
 
-  // website must be https
+  // website must be https, not a registry domain, and not duplicated in links
   if (data.website != null) {
     try {
       const url = new URL(data.website);
-      if (url.protocol !== "https:") errors.push("`website` must use HTTPS");
+      if (url.protocol !== "https:") {
+        errors.push("`website` must use HTTPS");
+      } else {
+        const hostname = url.hostname.replace(/^www\./, "");
+        if (REGISTRY_DOMAINS.has(hostname)) {
+          errors.push(
+            `\`website\` must be the project's own website or docs — \`${url.hostname}\` belongs in \`links\` instead`,
+          );
+        }
+        if (Array.isArray(data.links) && data.links.includes(data.website)) {
+          errors.push(`\`website\` URL is already listed in \`links\` — remove the duplicate`);
+        }
+      }
     } catch {
       errors.push(`\`website\` is not a valid URL: \`${data.website}\``);
     }

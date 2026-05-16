@@ -1,8 +1,19 @@
-# Azerbaijan GitHub Community — Showcase
+<img src="https://github.com/Azerbaijan-Git-Community/.github/blob/main/profile/agc-logo.png" align="left" width="200"/>
+
+### `Azerbaijan Github Community Showcase`
 
 A curated registry of open-source projects built by [Azerbaijan GitHub Community](https://github.com/Azerbaijan-Git-Community) members.
 
-Browse the live showcase at [azerbaijangithubcommunity.vercel.app/showcase](https://azerbaijangithubcommunity.vercel.app/showcase).
+Browse the live showcase at [githubcommunity.az/showcase](https://githubcommunity.az/showcase).
+
+<a href="https://githubcommunity.az/">Website</a> ·
+<a href="https://www.linkedin.com/company/github-azerbaijan/">Linkedin</a> ·
+<a href="https://t.me/github_azerbaijan">Telegram</a> ·
+<a href="https://www.instagram.com/azerbaijan_github_community/">Instagram</a>
+
+<br clear="left"/>
+
+---
 
 ## Submit Your Project
 
@@ -17,4 +28,4 @@ After your PR is merged, the project will appear on the website within minutes.
 - Members submit YAML files describing their projects via pull requests
 - A CI workflow validates the schema on every PR
 - On merge, a webhook notifies the website, which syncs GitHub metadata (stars, issues, PRs, license, language) into its database
-- The [/showcase](https://azerbaijangithubcommunity.vercel.app/showcase) page renders project cards from this data
+- The [/showcase](https://githubcommunity.az/showcase) page renders project cards from this data

@@ -6,8 +6,7 @@
   "type": "module",
   "scripts": {
     "checks": "node scripts/checks.ts",
-    "validate": "node .github/scripts/validate.ts",
-    "set-timestamps": "node .github/scripts/set-timestamps.ts",
+    "validate": "node scripts/validate.ts",
     "format": "prettier --write projects/",
     "format:check": "prettier --check projects/"
   },

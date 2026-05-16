@@ -26,35 +26,54 @@ links:
   # Optional — package registry / marketplace URLs
   - https://www.npmjs.com/package/my-package
   - https://pypi.org/project/my-package
-website: https://example.com # Optional — project website (HTTPS)
+website: https://myproject.com # Optional — project's own website or docs (HTTPS)
 ```
 
 ### Field Details
 
-| Field         | Required | Description                                                                                                                |
-| ------------- | -------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `repo`        | Yes      | GitHub repository in `owner/repo` format                                                                                   |
-| `submittedBy` | Yes      | Your GitHub username                                                                                                       |
-| `banner`      | No       | Banner image URL (HTTPS only). If it fails to load, the GitHub OG image is shown as fallback. Recommended size: 1280×640px |
-| `links`       | No       | List of HTTPS URLs to package registries or marketplaces (max 5)                                                           |
-| `website`     | No       | Project homepage. Must use HTTPS                                                                                           |
+| Field         | Required | Description                                                                                                                                                                                                          |
+| ------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `repo`        | Yes      | GitHub repository in `owner/repo` format                                                                                                                                                                             |
+| `submittedBy` | Yes      | Your GitHub username                                                                                                                                                                                                 |
+| `banner`      | No       | Banner image URL (HTTPS only). If it fails to load, the GitHub OG image is shown as fallback. Recommended size: 1280×640px                                                                                           |
+| `links`       | No       | List of HTTPS URLs to package registries or marketplaces (max 5)                                                                                                                                                     |
+| `website`     | No       | Your project's own website or documentation site (HTTPS). **Do not** put npm, PyPI, or other registry/host links here — those belong in `links`. If your project doesn't have its own website, leave this field out. |
 
 ### `links`
 
-
 Each entry is a plain HTTPS URL — no labels or extra fields needed. The website automatically picks the right icon based on the URL domain.
+
+Use `links` for package registries and marketplaces (npm, PyPI, crates.io, etc.). Use `website` **only** for the project's own website or docs — not for registry or third-party hosting links.
 
 **Recognized domains and their icons:**
 
-| Domain                         | Icon    |
-| ------------------------------ | ------- |
-| `npmjs.com`                    | npm     |
-| `pypi.org`                     | Python  |
-| `marketplace.visualstudio.com` | VS Code |
-| `crates.io`                    | Rust    |
-| `rubygems.org`                 | Ruby    |
-| `nuget.org`                    | .NET    |
-| `hub.docker.com`               | Docker  |
+| Domain                         | Icon                      |
+| ------------------------------ | ------------------------- |
+| `npmjs.com`                    | npm                       |
+| `pypi.org`                     | Python / PyPI             |
+| `marketplace.visualstudio.com` | VS Code Marketplace       |
+| `open-vsx.org`                 | Open VSX                  |
+| `crates.io`                    | Rust / crates.io          |
+| `rubygems.org`                 | RubyGems                  |
+| `nuget.org`                    | NuGet                     |
+| `hub.docker.com`               | Docker Hub                |
+| `pub.dev`                      | Dart / pub.dev            |
+| `pkg.go.dev`                   | Go / pkg.go.dev           |
+| `hex.pm`                       | Elixir / hex.pm           |
+| `packagist.org`                | PHP / Packagist           |
+| `anaconda.org`                 | Anaconda                  |
+| `mvnrepository.com`            | Maven                     |
+| `cocoapods.org`                | CocoaPods                 |
+| `jsr.io`                       | JSR (Deno)                |
+| `plugins.jetbrains.com`        | JetBrains Marketplace     |
+| `chromewebstore.google.com`    | Chrome Web Store          |
+| `addons.mozilla.org`           | Firefox Add-ons           |
+| `aur.archlinux.org`            | AUR (Arch Linux)          |
+| `snapcraft.io`                 | Snap Store                |
+| `flathub.org`                  | Flathub                   |
+| `search.nixos.org`             | NixOS                     |
+| `formulae.brew.sh`             | Homebrew                  |
+| `ghcr.io`                      | GitHub Container Registry |
 
 Any other domain shows a generic link icon — you don't need to wait for support to be added.
 
@@ -97,7 +116,7 @@ links:
 ## What Happens After Merge
 
 1. A webhook notifies the website to sync your project's GitHub metadata (stars, issues, PRs, license, language)
-2. Your project card appears on [azerbaijangithubcommunity.vercel.app/showcase](https://azerbaijangithubcommunity.vercel.app/showcase) within minutes
+2. Your project card appears on [githubcommunity.az/showcase](https://githubcommunity.az/showcase) within minutes
 
 ## Updating Your Project
 
