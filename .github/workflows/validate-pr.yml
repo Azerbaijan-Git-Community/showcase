@@ -3,7 +3,7 @@ name: Validate PR
 on:
   pull_request:
     paths:
-      - "projects/*.yaml"
+      - projects/*.yaml
     types: [opened, synchronize, reopened]
 
 permissions:
@@ -18,11 +18,13 @@ jobs:
           fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
+        with:
+          version: 11
 
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-          cache: "pnpm"
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -46,15 +48,8 @@ jobs:
 
       - name: Validate
         if: >
-          steps.changed.outputs.new != '' ||
-          steps.changed.outputs.modified != '' ||
-          steps.changed.outputs.deleted != '' ||
-          steps.changed.outputs.invalid != ''
+          steps.changed.outputs.new != '' || steps.changed.outputs.modified != '' || steps.changed.outputs.deleted != '' || steps.changed.outputs.invalid != ''
         run: >
-          node scripts/validate.ts
-          --new ${{ steps.changed.outputs.new }}
-          --modified ${{ steps.changed.outputs.modified }}
-          --deleted ${{ steps.changed.outputs.deleted }}
-          --invalid ${{ steps.changed.outputs.invalid }}
+          node scripts/validate.ts --new ${{ steps.changed.outputs.new }} --modified ${{ steps.changed.outputs.modified }} --deleted ${{ steps.changed.outputs.deleted }} --invalid ${{ steps.changed.outputs.invalid }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
