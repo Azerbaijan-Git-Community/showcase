@@ -4,6 +4,10 @@
   "description": "Azerbaijan GitHub Community — project showcase registry",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=10"
+  },
   "scripts": {
     "checks": "node scripts/checks.ts",
     "validate": "node scripts/validate.ts",
