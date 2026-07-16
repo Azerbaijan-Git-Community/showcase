@@ -3,7 +3,7 @@
 // Run before opening a PR:
 //   pnpm check
 //
-// Checks: Prettier format · YAML validation (all projects/)
+// Checks: Oxfmt format · YAML validation (all projects/)
 import { execSync } from "child_process";
 import { readdirSync } from "fs";
 import { join } from "path";
@@ -89,9 +89,9 @@ const hasChanges = newFiles.length + modifiedFiles.length + deletedFiles.length 
 // ── Checks ────────────────────────────────────────────────────────
 const checks: Check[] = [
   {
-    name: "Prettier — format check",
-    cmd: "pnpm prettier --check projects/",
-    onFail: "pnpm prettier --write projects/",
+    name: "Oxfmt — format check",
+    cmd: "pnpm fmt:check",
+    onFail: "pnpm oxfmt",
   },
   {
     name: "TypeScript — type check",
