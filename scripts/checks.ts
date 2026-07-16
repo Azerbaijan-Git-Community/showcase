@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Pre-PR check script for the showcase registry
 // Run before opening a PR:
-//   pnpm checks
+//   pnpm check
 //
 // Checks: Prettier format · YAML validation (all projects/)
 import { execSync } from "child_process";
@@ -38,23 +38,30 @@ function ask(question: string): Promise<boolean> {
 }
 
 // ── Detect git status of project files ───────────────────────────
-function getGitChanges(): { newFiles: string[]; modifiedFiles: string[]; deletedFiles: string[]; invalidFiles: string[] } {
+function getGitChanges(): {
+  newFiles: string[];
+  modifiedFiles: string[];
+  deletedFiles: string[];
+  invalidFiles: string[];
+} {
   try {
     // Staged + unstaged changes against HEAD
     const staged = execSync("git diff --name-only --diff-filter=A --cached -- projects/", { encoding: "utf8" }).trim();
-    const stagedM = execSync("git diff --name-only --diff-filter=CMRT --cached -- projects/", { encoding: "utf8" }).trim();
+    const stagedM = execSync("git diff --name-only --diff-filter=CMRT --cached -- projects/", {
+      encoding: "utf8",
+    }).trim();
     const stagedD = execSync("git diff --name-only --diff-filter=D --cached -- projects/", { encoding: "utf8" }).trim();
     const unstaged = execSync("git diff --name-only --diff-filter=CMRT -- projects/", { encoding: "utf8" }).trim();
     const untracked = execSync("git ls-files --others --exclude-standard -- projects/", { encoding: "utf8" }).trim();
 
-    const toList = (s: string) => s ? s.split("\n").map((f) => f.replaceAll("\\", "/")) : [];
+    const toList = (s: string) => (s ? s.split("\n").map((f) => f.replaceAll("\\", "/")) : []);
 
     const newFiles = [...new Set([...toList(staged), ...toList(untracked)])].filter((f) => f.endsWith(".yaml"));
     const modifiedFiles = [...new Set([...toList(stagedM), ...toList(unstaged)])].filter((f) => f.endsWith(".yaml"));
     const deletedFiles = toList(stagedD).filter((f) => f.endsWith(".yaml"));
-    const invalidFiles = [
-      ...toList(staged), ...toList(stagedM), ...toList(untracked),
-    ].filter((f) => !f.endsWith(".yaml") && f.startsWith("projects/"));
+    const invalidFiles = [...toList(staged), ...toList(stagedM), ...toList(untracked)].filter(
+      (f) => !f.endsWith(".yaml") && f.startsWith("projects/"),
+    );
 
     return { newFiles, modifiedFiles, deletedFiles, invalidFiles };
   } catch {
@@ -73,7 +80,9 @@ const validateArgs = [
   modifiedFiles.length ? `--modified ${modifiedFiles.join(" ")}` : "",
   deletedFiles.length ? `--deleted ${deletedFiles.join(" ")}` : "",
   invalidFiles.length ? `--invalid ${invalidFiles.join(" ")}` : "",
-].filter(Boolean).join(" ");
+]
+  .filter(Boolean)
+  .join(" ");
 
 const hasChanges = newFiles.length + modifiedFiles.length + deletedFiles.length + invalidFiles.length > 0;
 

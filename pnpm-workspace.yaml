@@ -1,1 +1,4 @@
+saveExact: true
 engineStrict: true
+minimumReleaseAge: 1440
+trustPolicy: no-downgrade

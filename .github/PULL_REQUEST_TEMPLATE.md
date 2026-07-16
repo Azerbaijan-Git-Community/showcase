@@ -4,7 +4,7 @@
 
 - [ ] My repository is public on GitHub
 - [ ] The filename matches the `repo` field — `{owner}-{repo}.yaml`
-- [ ] `pnpm checks` passes locally
+- [ ] `pnpm check` passes locally
 
 ## Notes
 

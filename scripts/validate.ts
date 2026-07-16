@@ -48,14 +48,7 @@ const REGISTRY_DOMAINS = new Set([
   "ghcr.io",
 ]);
 
-
-const ALLOWED_FIELDS = new Set([
-  "repo",
-  "submittedBy",
-  "banner",
-  "links",
-  "website",
-]);
+const ALLOWED_FIELDS = new Set(["repo", "submittedBy", "banner", "links", "website"]);
 
 const MAX_LINKS = 5;
 
@@ -97,9 +90,7 @@ function parseArgs(args: string[]): {
   return { newFiles, modifiedFiles, deletedFiles, invalidFiles };
 }
 
-const { newFiles, modifiedFiles, deletedFiles, invalidFiles } = parseArgs(
-  process.argv.slice(2),
-);
+const { newFiles, modifiedFiles, deletedFiles, invalidFiles } = parseArgs(process.argv.slice(2));
 const filesToValidate = [...newFiles, ...modifiedFiles];
 const allChangedFiles = [...filesToValidate, ...deletedFiles, ...invalidFiles];
 
@@ -111,9 +102,7 @@ if (allChangedFiles.length === 0) {
 const modifiedSet = new Set(modifiedFiles);
 
 // Load all existing repos for duplicate checking (from the PR branch, i.e. working tree)
-const allProjectFiles = readdirSync("projects").filter((f) =>
-  f.endsWith(".yaml"),
-);
+const allProjectFiles = readdirSync("projects").filter((f) => f.endsWith(".yaml"));
 const existingRepos = new Map<string, string>();
 for (const file of allProjectFiles) {
   try {
@@ -161,9 +150,7 @@ for (const filePath of invalidFiles) {
   results.push({
     file: filePath,
     status: "deleted",
-    errors: [
-      `Only \`.yaml\` files are allowed in the \`projects/\` directory, got \`${filePath}\``,
-    ],
+    errors: [`Only \`.yaml\` files are allowed in the \`projects/\` directory, got \`${filePath}\``],
   });
   hasErrors = true;
 }
@@ -177,9 +164,7 @@ for (const filePath of deletedFiles) {
     results.push({
       file: filename,
       status: "deleted",
-      errors: [
-        "File is marked as deleted but still exists in the working tree",
-      ],
+      errors: ["File is marked as deleted but still exists in the working tree"],
     });
     hasErrors = true;
   } else {
@@ -215,9 +200,7 @@ for (const filePath of filesToValidate) {
   // Check for unknown fields
   for (const key of Object.keys(data)) {
     if (!ALLOWED_FIELDS.has(key)) {
-      errors.push(
-        `Unknown field \`${key}\` — only allowed: ${[...ALLOWED_FIELDS].join(", ")}`,
-      );
+      errors.push(`Unknown field \`${key}\` — only allowed: ${[...ALLOWED_FIELDS].join(", ")}`);
     }
   }
 
@@ -235,9 +218,7 @@ for (const filePath of filesToValidate) {
     const [owner, repoName] = data.repo.split("/");
     const expectedFilename = `${owner}-${repoName}.yaml`;
     if (filename !== expectedFilename) {
-      errors.push(
-        `Filename must be \`${expectedFilename}\` for repo \`${data.repo}\`, got \`${filename}\``,
-      );
+      errors.push(`Filename must be \`${expectedFilename}\` for repo \`${data.repo}\`, got \`${filename}\``);
     }
   }
 
@@ -282,9 +263,7 @@ for (const filePath of filesToValidate) {
   if (data.repo && REPO_RE.test(data.repo)) {
     const existingFile = existingRepos.get(data.repo);
     if (existingFile && existingFile !== filename) {
-      errors.push(
-        `Repo \`${data.repo}\` already exists in \`${existingFile}\``,
-      );
+      errors.push(`Repo \`${data.repo}\` already exists in \`${existingFile}\``);
     }
   }
 
@@ -299,9 +278,7 @@ if (token) {
     if (result.errors.length > 0 || result.status === "deleted") continue;
     const filePath = filesToValidate.find((f) => basename(f) === result.file);
     if (!filePath) continue;
-    const data = yaml.load(
-      readFileSync(filePath, "utf8"),
-    ) as ProjectYaml | null;
+    const data = yaml.load(readFileSync(filePath, "utf8")) as ProjectYaml | null;
     if (!data?.repo) continue;
 
     try {
@@ -312,16 +289,12 @@ if (token) {
         },
       });
       if (res.status === 404) {
-        result.errors.push(
-          `Repository \`${data.repo}\` does not exist or is not public on GitHub`,
-        );
+        result.errors.push(`Repository \`${data.repo}\` does not exist or is not public on GitHub`);
         hasErrors = true;
       } else if (res.ok) {
         const repoData = (await res.json()) as { private: boolean };
         if (repoData.private) {
-          result.errors.push(
-            `Repository \`${data.repo}\` is private — only public repos are allowed`,
-          );
+          result.errors.push(`Repository \`${data.repo}\` is private — only public repos are allowed`);
           hasErrors = true;
         }
       }
@@ -334,12 +307,7 @@ if (token) {
 // Output results
 console.log("");
 for (const { file, status, errors } of results) {
-  const tag =
-    status === "deleted"
-      ? "[deleted]"
-      : status === "new"
-        ? "[new]"
-        : "[modified]";
+  const tag = status === "deleted" ? "[deleted]" : status === "new" ? "[new]" : "[modified]";
   if (errors.length === 0) {
     console.log(`  ${tag} ${file} — valid`);
   } else {
