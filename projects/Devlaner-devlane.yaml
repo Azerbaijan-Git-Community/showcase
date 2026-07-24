@@ -1,0 +1,7 @@
+repo: "Devlaner/devlane"
+submittedBy: "martian56"
+banner: "https://raw.githubusercontent.com/Devlaner/devlane/main/apps/web/public/devlane-1-light.png"
+links:
+  - "https://ghcr.io/devlaner/devlane-api"
+  - "https://ghcr.io/devlaner/devlane-ui"
+website: "https://devlane.dev"
