@@ -4,14 +4,14 @@
   "description": "Azerbaijan GitHub Community — project showcase registry",
   "type": "module",
   "scripts": {
-    "check": "node scripts/checks.ts",
-    "validate": "node scripts/validate.ts",
+    "check": "greenly",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check"
   },
   "devDependencies": {
     "@types/js-yaml": "4.0.9",
     "@types/node": "24.13.3",
+    "greenly": "1.0.1",
     "js-yaml": "5.2.2",
     "oxfmt": "0.61.0",
     "typescript": "7.0.2"
