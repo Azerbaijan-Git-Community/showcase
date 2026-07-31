@@ -2,8 +2,6 @@ name: Validate PR
 
 on:
   pull_request:
-    paths:
-      - projects/*.yaml
     types: [opened, synchronize, reopened]
 
 permissions:
@@ -14,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -32,27 +30,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Get changed files
-        id: changed
-        run: |
-          BASE="origin/${{ github.base_ref }}"
-          NEW=$(git diff --name-only --diff-filter=A "$BASE"...HEAD -- 'projects/*.yaml' | tr '\n' ' ')
-          MODIFIED=$(git diff --name-only --diff-filter=CMRT "$BASE"...HEAD -- 'projects/*.yaml' | tr '\n' ' ')
-          DELETED=$(git diff --name-only --diff-filter=D "$BASE"...HEAD -- 'projects/*.yaml' | tr '\n' ' ')
-          INVALID=$(git diff --name-only --diff-filter=ACMRT "$BASE"...HEAD -- 'projects/*' | grep -v '\.yaml$' | tr '\n' ' ' || true)
-          echo "new=$NEW" >> "$GITHUB_OUTPUT"
-          echo "modified=$MODIFIED" >> "$GITHUB_OUTPUT"
-          echo "deleted=$DELETED" >> "$GITHUB_OUTPUT"
-          echo "invalid=$INVALID" >> "$GITHUB_OUTPUT"
-
-      - name: Oxfmt
-        if: steps.changed.outputs.new != '' || steps.changed.outputs.modified != ''
-        run: pnpm fmt:check ${{ steps.changed.outputs.new }} ${{ steps.changed.outputs.modified }}
-
-      - name: Validate
-        if: >
-          steps.changed.outputs.new != '' || steps.changed.outputs.modified != '' || steps.changed.outputs.deleted != '' || steps.changed.outputs.invalid != ''
-        run: >
-          node scripts/validate.ts --new ${{ steps.changed.outputs.new }} --modified ${{ steps.changed.outputs.modified }} --deleted ${{ steps.changed.outputs.deleted }} --invalid ${{ steps.changed.outputs.invalid }}
+      - name: Run checks
+        run: pnpm check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

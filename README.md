@@ -24,14 +24,18 @@ Browse the live showcase at [githubcommunity.az/showcase](https://githubcommunit
 
 ### Steps
 
-1. **Fork** this repository
-2. Create a new file in the `projects/` directory named `{owner}-{repo}.yaml`
+1. **Fork** this repository and clone your fork
+2. Install dependencies with `pnpm install`
+3. Create a new file in the `projects/` directory named `{owner}-{repo}.yaml`
    - Replace `{owner}` and `{repo}` with the GitHub owner and repository name
    - Example: for `octocat/hello-world`, the filename is `octocat-hello-world.yaml`
-3. Fill in the fields (see schema below)
-4. Open a **pull request** against `main`
+4. Fill in the fields (see schema below)
+5. **Run `pnpm check` locally** and fix any reported errors before opening the PR
+6. Open a **pull request** against `main`
 
-A CI check will validate your file automatically. Fix any reported errors before requesting review.
+> Please run `pnpm check` locally before submitting your PR. It runs the same checks as CI
+> (formatting, type check, and project validation), so it is the fastest way to catch issues
+> before review. The same checks run automatically on your pull request.
 
 ### Schema
 
@@ -131,6 +135,6 @@ To update optional fields later, open a new PR editing your existing YAML file.
 ## How It Works
 
 - Members submit YAML files describing their projects via pull requests
-- A CI workflow validates the schema on every PR
+- A CI workflow runs `pnpm check` on every PR (formatting, type check, and schema validation), the same command you run locally
 - On merge, a webhook notifies the website, which syncs GitHub metadata (stars, issues, PRs, license, language) into its database
 - The [/showcase](https://githubcommunity.az/showcase) page renders project cards from this data

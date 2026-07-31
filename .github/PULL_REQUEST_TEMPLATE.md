@@ -2,9 +2,8 @@
 
 ## Checklist
 
-- [ ] My repository is public on GitHub
-- [ ] The filename matches the `repo` field — `{owner}-{repo}.yaml`
 - [ ] `pnpm check` passes locally
+- [ ] My repository is public on GitHub
 
 ## Notes
 
