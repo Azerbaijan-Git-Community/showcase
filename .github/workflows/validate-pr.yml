@@ -2,8 +2,6 @@ name: Validate PR
 
 on:
   pull_request:
-    paths:
-      - projects/*.yaml
     types: [opened, synchronize, reopened]
 
 permissions:
