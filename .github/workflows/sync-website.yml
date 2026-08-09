@@ -7,13 +7,67 @@ on:
       - projects/*.yaml
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
       - name: Trigger showcase sync
         run: |
           curl -sf -X POST "${{ secrets.WEBSITE_URL }}/api/webhooks/showcase" \
             -H "Authorization: Bearer ${{ secrets.SHOWCASE_WEBHOOK_SECRET }}" \
             -H "Content-Type: application/json" \
             -d '{"source": "showcase-repo"}'
+
+      - name: Comment on merged PRs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WEBSITE_URL: ${{ secrets.WEBSITE_URL }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          MARKER="<!-- sync-website-bot -->"
+
+          # Commits pushed in this event. On workflow_dispatch or the first push
+          # there is no valid `before`, so fall back to just the head commit.
+          if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git rev-parse "$BEFORE" >/dev/null 2>&1; then
+            LOG=$(git log "${BEFORE}..${AFTER}" --pretty=%s)
+          else
+            LOG=$(git log -n 1 "$AFTER" --pretty=%s)
+          fi
+
+          # PR numbers referenced in squash-merge commit subjects, e.g. "Title (#42)"
+          PRS=$(echo "$LOG" | grep -oE '\(#[0-9]+\)' | grep -oE '[0-9]+' | sort -un)
+          echo "PRs in this push: ${PRS:-none}"
+
+          for PR in $PRS; do
+            # Only comment on actually-merged PRs (skip stray issue references).
+            STATE=$(gh pr view "$PR" --json state --jq '.state' 2>/dev/null || echo "")
+            if [ "$STATE" != "MERGED" ]; then
+              echo "Skipping #$PR (state: ${STATE:-not a PR})"
+              continue
+            fi
+
+            # Skip if this bot already commented (admin re-merges / workflow re-runs).
+            if gh api "repos/${GITHUB_REPOSITORY}/issues/${PR}/comments" --paginate --jq '.[].body' | grep -qF "$MARKER"; then
+              echo "Already commented on #$PR, skipping"
+              continue
+            fi
+
+            AUTHOR=$(gh pr view "$PR" --json author --jq '.author.login')
+            echo "Commenting on #$PR (@$AUTHOR)"
+
+            gh pr comment "$PR" --body "$(cat <<EOF
+          $MARKER
+          @${AUTHOR} Thanks for your submission! 🎉 Your project has been synced and is now live on the [showcase](${WEBSITE_URL}/showcase).
+          EOF
+          )"
+          done

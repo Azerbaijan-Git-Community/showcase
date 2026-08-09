@@ -23,6 +23,7 @@ type Changes = {
   modifiedFiles: string[];
   deletedFiles: string[];
   invalidFiles: string[];
+  misplacedFiles: string[];
 };
 
 const REPO_RE = /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/;
@@ -58,6 +59,17 @@ const REGISTRY_DOMAINS = new Set([
 
 const ALLOWED_FIELDS = new Set(["repo", "submittedBy", "banner", "links", "website"]);
 
+// YAML files that legitimately live outside `projects/` (repo config, not submissions).
+const CONFIG_YAML = new Set(["pnpm-lock.yaml", "pnpm-workspace.yaml"]);
+
+/** True for a YAML file that is neither a project submission nor known repo config. */
+function isMisplacedYaml(file: string): boolean {
+  if (!file.endsWith(".yaml") && !file.endsWith(".yml")) return false;
+  if (file.startsWith("projects/")) return false;
+  if (file.startsWith(".github/")) return false;
+  return !CONFIG_YAML.has(basename(file));
+}
+
 const MAX_LINKS = 5;
 
 /** Run a git command and return its output lines (forward-slashed), or [] on empty. */
@@ -84,6 +96,7 @@ function detectChanges(): Changes {
         modifiedFiles: yamlOnly(gitLines(`diff --name-only --diff-filter=CMRT ${range} -- projects/`)),
         deletedFiles: yamlOnly(gitLines(`diff --name-only --diff-filter=D ${range} -- projects/`)),
         invalidFiles: nonYamlInProjects(gitLines(`diff --name-only --diff-filter=ACMRT ${range} -- projects/`)),
+        misplacedFiles: gitLines(`diff --name-only --diff-filter=ACMRT ${range}`).filter(isMisplacedYaml),
       };
     }
 
@@ -93,18 +106,23 @@ function detectChanges(): Changes {
     const unstagedMod = gitLines("diff --name-only --diff-filter=CMRT -- projects/");
     const untracked = gitLines("ls-files --others --exclude-standard -- projects/");
 
+    const stagedAll = gitLines("diff --name-only --diff-filter=ACMRT --cached");
+    const unstagedAll = gitLines("diff --name-only --diff-filter=ACMRT");
+    const untrackedAll = gitLines("ls-files --others --exclude-standard");
+
     return {
       newFiles: yamlOnly([...new Set([...stagedNew, ...untracked])]),
       modifiedFiles: yamlOnly([...new Set([...stagedMod, ...unstagedMod])]),
       deletedFiles: yamlOnly(stagedDel),
       invalidFiles: nonYamlInProjects([...new Set([...stagedNew, ...stagedMod, ...untracked])]),
+      misplacedFiles: [...new Set([...stagedAll, ...unstagedAll, ...untrackedAll])].filter(isMisplacedYaml),
     };
   } catch {
     // Not a git repo or git failed: validate every project file.
     const all = readdirSync("projects")
       .filter((f) => f.endsWith(".yaml"))
       .map((f) => join("projects", f).replaceAll("\\", "/"));
-    return { newFiles: [], modifiedFiles: all, deletedFiles: [], invalidFiles: [] };
+    return { newFiles: [], modifiedFiles: all, deletedFiles: [], invalidFiles: [], misplacedFiles: [] };
   }
 }
 
@@ -141,9 +159,9 @@ function validateLinks(links: unknown, errors: string[]) {
  * per-file report, and throws when any file is invalid (which fails the check).
  */
 export async function validate(): Promise<void> {
-  const { newFiles, modifiedFiles, deletedFiles, invalidFiles } = detectChanges();
+  const { newFiles, modifiedFiles, deletedFiles, invalidFiles, misplacedFiles } = detectChanges();
   const filesToValidate = [...newFiles, ...modifiedFiles];
-  const allChangedFiles = [...filesToValidate, ...deletedFiles, ...invalidFiles];
+  const allChangedFiles = [...filesToValidate, ...deletedFiles, ...invalidFiles, ...misplacedFiles];
 
   if (allChangedFiles.length === 0) {
     console.log("No changed project files to validate.");
@@ -167,6 +185,16 @@ export async function validate(): Promise<void> {
 
   let hasErrors = false;
   const results: ValidationResult[] = [];
+
+  // Reject project YAML files placed outside the `projects/` directory.
+  for (const filePath of misplacedFiles) {
+    results.push({
+      file: filePath,
+      status: "new",
+      errors: [`Project files must live in the \`projects/\` directory, move \`${filePath}\` into \`projects/\``],
+    });
+    hasErrors = true;
+  }
 
   // Reject non-YAML files in projects/
   for (const filePath of invalidFiles) {
