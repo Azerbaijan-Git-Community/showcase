@@ -78,6 +78,18 @@ function gitLines(args: string): string[] {
   return out ? out.split("\n").map((f) => f.replaceAll("\\", "/")) : [];
 }
 
+function resolveGitHubToken(): string | null {
+  const envToken = process.env.GITHUB_TOKEN?.trim();
+  if (envToken) return envToken;
+  try {
+    const token = execSync("gh auth token", { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    if (token) return token;
+  } catch {
+    // gh not installed or not logged in: no token available.
+  }
+  return null;
+}
+
 /**
  * Detect the changed project files. In CI (pull_request) it diffs against the
  * base branch; locally it diffs the working tree (staged + unstaged + untracked)
@@ -320,7 +332,14 @@ export async function validate(): Promise<void> {
   }
 
   // Check repos exist and are public on GitHub (only for new/modified without errors).
-  const token = process.env.GITHUB_TOKEN;
+  const token = resolveGitHubToken();
+  if (!token) {
+    console.log(
+      "\nNote: skipping the GitHub repo existence/visibility check (no GitHub credentials found).\n" +
+        "      Install the GitHub CLI and run `gh auth login`, or set GITHUB_TOKEN, to enable it.\n" +
+        "      This check always runs in CI, so a missing or private repo is still caught there.",
+    );
+  }
   if (token) {
     for (const result of results) {
       if (result.errors.length > 0 || result.status === "deleted") continue;
