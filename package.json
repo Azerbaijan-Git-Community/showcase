@@ -11,9 +11,9 @@
   "devDependencies": {
     "@types/js-yaml": "4.0.9",
     "@types/node": "24.13.3",
-    "greenly": "1.1.5",
-    "js-yaml": "5.2.3",
-    "oxfmt": "0.63.0",
+    "greenly": "1.1.6",
+    "js-yaml": "5.4.1",
+    "oxfmt": "0.65.0",
     "typescript": "7.0.2"
   },
   "engines": {
