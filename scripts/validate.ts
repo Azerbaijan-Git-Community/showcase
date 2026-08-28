@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
-import yaml from "js-yaml";
+import * as yaml from "js-yaml";
 
 type ProjectYaml = {
   repo?: string;
