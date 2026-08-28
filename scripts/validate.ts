@@ -78,7 +78,7 @@ function gitLines(args: string): string[] {
   return out ? out.split("\n").map((f) => f.replaceAll("\\", "/")) : [];
 }
 
-function resolveGitHubToken(): string | null {
+export function resolveGitHubToken(): string | null {
   const envToken = process.env.GITHUB_TOKEN?.trim();
   if (envToken) return envToken;
   try {
@@ -88,6 +88,28 @@ function resolveGitHubToken(): string | null {
     // gh not installed or not logged in: no token available.
   }
   return null;
+}
+
+/** `unknown` means rate limit/network error — callers must never delete on it. */
+export type RepoStatus = "ok" | "missing" | "private" | "unknown";
+
+export async function checkRepoStatus(repo: string, token: string): Promise<RepoStatus> {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${repo}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "User-Agent": "AzGitCommunity-Showcase",
+      },
+    });
+    if (res.status === 404) return "missing";
+    if (res.ok) {
+      const data = (await res.json()) as { private: boolean };
+      return data.private ? "private" : "ok";
+    }
+    return "unknown";
+  } catch {
+    return "unknown";
+  }
 }
 
 /**
@@ -348,26 +370,15 @@ export async function validate(): Promise<void> {
       const data = yaml.load(readFileSync(filePath, "utf8")) as ProjectYaml | null;
       if (!data?.repo) continue;
 
-      try {
-        const res = await fetch(`https://api.github.com/repos/${data.repo}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "User-Agent": "AzGitCommunity-Showcase",
-          },
-        });
-        if (res.status === 404) {
-          result.errors.push(`Repository \`${data.repo}\` does not exist or is not public on GitHub`);
-          hasErrors = true;
-        } else if (res.ok) {
-          const repoData = (await res.json()) as { private: boolean };
-          if (repoData.private) {
-            result.errors.push(`Repository \`${data.repo}\` is private, only public repos are allowed`);
-            hasErrors = true;
-          }
-        }
-      } catch {
-        // Network error: skip check, do not fail the PR for this.
+      const status = await checkRepoStatus(data.repo, token);
+      if (status === "missing") {
+        result.errors.push(`Repository \`${data.repo}\` does not exist or is not public on GitHub`);
+        hasErrors = true;
+      } else if (status === "private") {
+        result.errors.push(`Repository \`${data.repo}\` is private, only public repos are allowed`);
+        hasErrors = true;
       }
+      // "unknown" (rate limit / network error): skip, do not fail the check.
     }
   }
 
