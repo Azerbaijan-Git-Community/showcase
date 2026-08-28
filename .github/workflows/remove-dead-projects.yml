@@ -1,0 +1,52 @@
+name: Remove Dead Projects
+
+# Once a week, check every project's GitHub repo and open a PR that deletes the
+# YAML for any repo that was removed (404) or turned private, for a maintainer to
+# review. Also runnable on demand via the Actions tab.
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  remove:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Remove dead/private projects
+        id: remove
+        run: node scripts/remove-dead-projects.ts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Open pull request
+        if: steps.remove.outputs.count != '0' && steps.remove.outputs.count != ''
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          branch: chore/remove-dead-projects
+          delete-branch: true
+          commit-message: "chore: remove dead/private showcase projects"
+          title: "chore: remove dead/private showcase projects"
+          body: ${{ steps.remove.outputs.body }}
