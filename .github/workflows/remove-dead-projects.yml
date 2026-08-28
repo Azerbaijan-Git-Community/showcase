@@ -1,11 +1,8 @@
 name: Remove Dead Projects
 
-# Once a week, check every project's GitHub repo and open a PR that deletes the
-# YAML for any repo that was removed (404) or turned private, for a maintainer to
-# review. Also runnable on demand via the Actions tab.
 on:
   schedule:
-    - cron: "0 6 * * 1"
+    - cron: "0 5 * * 6" # Saturdays 09:00 Asia/Baku (UTC+4)
   workflow_dispatch:
 
 permissions:
