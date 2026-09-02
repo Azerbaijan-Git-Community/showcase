@@ -1,3 +1,5 @@
+# Everything (except projects/*) requires review from the CTO by default.
 *                   @Azerbaijan-Git-Community/cto
 
+# Showcase projects: any changes inside projects/ can be reviewed by the maintainers team.
 /projects/          @Azerbaijan-Git-Community/maintainers
