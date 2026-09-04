@@ -1,0 +1,7 @@
+repo: "martian56/redcell"
+submittedBy: "martian56"
+banner: "https://raw.githubusercontent.com/martian56/redcell/main/images/in-action.png"
+links:
+  - "https://ghcr.io/martian56/redcell-api"
+  - "https://ghcr.io/martian56/redcell-worker"
+  - "https://ghcr.io/martian56/redcell-web"
