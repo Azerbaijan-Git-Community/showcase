@@ -1,0 +1,8 @@
+repo: "libredb/libredb-studio"
+submittedBy: "cevheri"
+links:
+  - "https://www.npmjs.com/package/@libredb/studio"
+  - "https://ghcr.io/libredb/libredb-studio"
+  - "https://snapcraft.io/libredb-studio"
+  - "https://artifacthub.io/packages/helm/libredb-studio/libredb-studio"
+website: "https://libredb.org"
