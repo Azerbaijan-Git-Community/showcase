@@ -20,6 +20,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Trigger showcase sync
         run: |
           curl -sf -X POST "${{ secrets.WEBSITE_URL }}/api/webhooks/showcase" \
@@ -71,3 +85,13 @@ jobs:
           EOF
           )"
           done
+
+      - name: Announce new projects on Telegram
+        run: node scripts/notify-telegram.ts
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+          WEBSITE_URL: ${{ secrets.WEBSITE_URL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_TOPIC_ID: ${{ secrets.TELEGRAM_TOPIC_ID }}
