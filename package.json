@@ -10,10 +10,10 @@
   },
   "devDependencies": {
     "@types/js-yaml": "4.0.9",
-    "@types/node": "24.13.6",
-    "greenly": "1.1.6",
+    "@types/node": "24.19.1",
+    "greenly": "1.2.0",
     "js-yaml": "5.4.2",
-    "oxfmt": "0.70.0",
+    "oxfmt": "0.71.0",
     "typescript": "7.0.2"
   },
   "engines": {
