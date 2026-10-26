@@ -11,6 +11,11 @@ on:
         description: "Projects to announce on Telegram (e.g. owner/repo, comma-separated). Empty = latest added."
         required: false
         type: string
+      delay:
+        description: "Seconds to wait between Telegram posts."
+        required: false
+        default: "1.5"
+        type: string
 
 permissions:
   contents: read
@@ -97,6 +102,7 @@ jobs:
           BEFORE: ${{ github.event.before }}
           AFTER: ${{ github.sha }}
           PROJECTS: ${{ inputs.projects }}
+          SEND_DELAY: ${{ inputs.delay }}
           WEBSITE_URL: ${{ secrets.WEBSITE_URL }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}

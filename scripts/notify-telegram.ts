@@ -179,12 +179,13 @@ async function main(): Promise<void> {
   const projects = files.map(readProject).filter((p): p is Project => p !== null);
   console.log(`Announcing ${projects.length} new project(s): ${projects.map((p) => basename(p.file)).join(", ")}`);
 
+  const delayMs = (Number(process.env.SEND_DELAY) || 1.5) * 1000;
   let failed = 0;
   for (const project of projects) {
     const sent = await announce(token, chatId, threadId, project);
     if (!sent) failed++;
-    // Stay well under Telegram's per-group rate limit when several land at once.
-    await new Promise((r) => setTimeout(r, 1500));
+    // Stay under Telegram's per-group rate limit; a longer SEND_DELAY gives link previews time to load.
+    await new Promise((r) => setTimeout(r, delayMs));
   }
 
   if (failed > 0) {
