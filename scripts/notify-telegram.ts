@@ -103,18 +103,26 @@ function buildCaption(project: Project): string {
   return lines.join("\n");
 }
 
-type TelegramResult = { ok: boolean; description?: string };
+type TelegramResult = { ok: boolean; description?: string; parameters?: { retry_after?: number } };
 
 async function callTelegram(token: string, method: string, payload: Record<string, unknown>): Promise<TelegramResult> {
-  try {
-    const res = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    return (await res.json()) as TelegramResult;
-  } catch (e) {
-    return { ok: false, description: (e as Error).message };
+  for (let attempt = 0; ; attempt++) {
+    let result: TelegramResult;
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      result = (await res.json()) as TelegramResult;
+    } catch (e) {
+      return { ok: false, description: (e as Error).message };
+    }
+    // Bulk announcements hit the group rate limit; wait as long as Telegram asks.
+    const retryAfter = result.parameters?.retry_after;
+    if (result.ok || !retryAfter || attempt >= 5) return result;
+    console.warn(`  Rate limited, retrying ${method} in ${retryAfter}s`);
+    await new Promise((r) => setTimeout(r, (retryAfter + 1) * 1000));
   }
 }
 
