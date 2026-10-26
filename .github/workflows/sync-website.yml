@@ -6,6 +6,11 @@ on:
     paths:
       - projects/*.yaml
   workflow_dispatch:
+    inputs:
+      projects:
+        description: "Projects to announce on Telegram (e.g. owner/repo, comma-separated). Empty = latest added."
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -91,6 +96,7 @@ jobs:
         env:
           BEFORE: ${{ github.event.before }}
           AFTER: ${{ github.sha }}
+          PROJECTS: ${{ inputs.projects }}
           WEBSITE_URL: ${{ secrets.WEBSITE_URL }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}

@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { basename } from "node:path";
 import * as yaml from "js-yaml";
 
@@ -55,6 +55,26 @@ function addedProjectFiles(): string[] {
     // Root commit with no parent, or git failure: nothing to announce.
     return [];
   }
+}
+
+/** Project files named in `PROJECTS` (e.g. `owner/repo` or `owner-repo`, comma/space separated). */
+function requestedProjectFiles(list: string): string[] {
+  const files = list
+    .split(/[\s,]+/)
+    .filter(Boolean)
+    .map(
+      (name) =>
+        `projects/${name
+          .replace(/^projects\//, "")
+          .replace(/\.yaml$/, "")
+          .replace("/", "-")}.yaml`,
+    );
+  const missing = files.filter((f) => !existsSync(f));
+  if (missing.length > 0) {
+    console.error(`Error: project file(s) not found: ${missing.join(", ")}`);
+    process.exit(1);
+  }
+  return files;
 }
 
 function readProject(file: string): Project | null {
@@ -141,7 +161,8 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const files = addedProjectFiles();
+  const requested = process.env.PROJECTS?.trim();
+  const files = requested ? requestedProjectFiles(requested) : addedProjectFiles();
   if (files.length === 0) {
     console.log("No newly added project files in this push, nothing to announce.");
     return;
