@@ -14,7 +14,7 @@
     "@types/node": "24.19.2",
     "greenly": "1.2.0",
     "js-yaml": "5.5.0",
-    "oxfmt": "0.76.0",
+    "oxfmt": "0.77.0",
     "typescript": "7.0.2"
   },
   "engines": {
